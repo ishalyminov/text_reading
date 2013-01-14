@@ -1,32 +1,40 @@
-import xml.sax
+import xml
 import re
+import nltk.tokenize
+
+def get_text_raw(in_file, in_output_encoding = 'utf-8'):
+    parser = xml.sax.make_parser()
+    handler = RuscorporaRawTextParser(encode_to = in_output_encoding)
+    parser.setContentHandler(handler)
+    parser.parse(in_file)
+    text = handler.char_buffer
+    result = []
+    for sentence in nltk.sent_tokenize(text):
+        result.append([word.lower() for word in nltk.word_tokenize(sentence) \
+                       if not re.match('^[^\w]+$', word, re.UNICODE)])
+    return result
 
 # raw text in ruscorpora is a set of paragraphs enclosed in <p> </p> tags
 # and some <meta>-attributes in the header
 class RuscorporaRawTextParser(xml.sax.handler.ContentHandler):
     def __init__(self, encode_to = None):
-        self.within_sentence = False
+        self.within_body = False
         self.sentences = []
         self.char_buffer = ''
         self.output_encoding = encode_to
 
     def startElement(self, name, attrs):
-        if name == 'p':
-            self.within_sentence = True
+        if name == 'body':
+            self.within_body = True
             self.char_buffer = ''
 
     def endElement(self, name):
-        if name == 'p':
-            self.within_sentence = False
-            if len(self.char_buffer):
-                if self.output_encoding:
-                    self.char_buffer = self.char_buffer.encode(self.output_encoding)
-                self.sentences.append(self.char_buffer)
-                self.char_buffer = ''
+        if name == 'body':
+            self.within_body = False
 
     def characters(self, ch):
         # only collect word forms char-by-char
-        if self.within_sentence:
+        if self.within_body:
             self.char_buffer += ch
 
 # annotated text is divided into sentences (<se> ... </se>); each sentence's raw words
