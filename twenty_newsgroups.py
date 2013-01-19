@@ -25,6 +25,19 @@ def load_text(in_file_name):
                        if not re.match('^[^\w]+$', word)])
     return result
 
+def load_text_raw(in_file_name):
+    in_file = open(in_file_name)
+    text = []
+    for line in in_file:
+        # for various email quotations
+        line = line.lstrip(string.punctuation)
+        text.append(line.strip())
+    # tokenized punctuation-free sentences
+    result = []
+    for sentence in nltk.sent_tokenize(' '.join(text)):
+        result.append([word.lower() for word in nltk.word_tokenize(sentence) \
+                       if not re.match('^[^\w]+$', word)])
+    return result
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
