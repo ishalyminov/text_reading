@@ -2,7 +2,7 @@ import xml
 import re
 import nltk.tokenize
 
-def get_text_raw(in_file, in_output_encoding = 'utf-8'):
+def get_sentences_raw(in_file, in_output_encoding = 'utf-8'):
     parser = xml.sax.make_parser()
     handler = RuscorporaRawTextParser(encode_to = in_output_encoding)
     parser.setContentHandler(handler)
@@ -13,6 +13,13 @@ def get_text_raw(in_file, in_output_encoding = 'utf-8'):
         result.append([word.lower() for word in nltk.word_tokenize(sentence) \
                        if not re.match('^[^\w]+$', word, re.UNICODE)])
     return result
+
+def get_text_raw(in_file, in_output_encoding = 'utf-8'):
+    sentences = get_sentences_raw(in_file, in_output_encoding)
+    text = []
+    for sentence in sentences:
+        text += sentence
+    return text
 
 # raw text in ruscorpora is a set of paragraphs enclosed in <p> </p> tags
 # and some <meta>-attributes in the header
