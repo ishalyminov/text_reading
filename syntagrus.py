@@ -52,7 +52,6 @@ def syntagrus_to_plaintext(in_sentences, out_stream):
         print >>out_stream, ''.join(sentence)
 
 
-
 def convert(in_source, out_destination, in_serialize_function):
     out = out_destination
     if isinstance(out_destination, str):
